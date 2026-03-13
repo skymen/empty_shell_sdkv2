@@ -1,16 +1,15 @@
-<img src="./src/icon.svg" width="100" /><br>
+<img src="./examples/cover.webp" width="150" /><br>
 # Empty Shell
 <i>An empty shell addon that can be given a texture</i> <br>
-### Version 2.0.0.0
+### Version 2.0.0.1
 
-[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/skymen/empty_shell_sdkv2/releases/download/skymen_Shell-2.0.0.0.c3addon/skymen_Shell-2.0.0.0.c3addon)
+[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/skymen/empty_shell_sdkv2/releases/download/skymen_Shell-2.0.0.1.c3addon/skymen_Shell-2.0.0.1.c3addon)
 <br>
 <sub> [See all releases](https://github.com/skymen/empty_shell_sdkv2/releases) </sub> <br>
 
-#### What's New in 2.0.0.0
-**Added:**
-Ported to SDK V2
-
+#### What's New in 2.0.0.1
+**Fixed:**
+Added an if statement to prevent hack if it would break
 
 <sub>[View full changelog](#changelog)</sub>
 
@@ -42,6 +41,8 @@ npm run dev
 ```
 
 ## Examples Files
+| Description | Download |
+| --- | --- |
 
 ---
 ## Properties
@@ -82,6 +83,12 @@ npm run dev
 
 ---
 ## Changelog
+
+### Version 2.0.0.1
+
+**Fixed:**
+Added an if statement to prevent hack if it would break
+---
 
 ### Version 2.0.0.0
 

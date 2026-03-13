@@ -1,18 +1,11 @@
 <img src="./src/icon.svg" width="100" /><br>
-# Sample Addon
-<i>Description</i> <br>
-### Version 0.0.0.0
+# Empty Shell
+<i>An empty shell addon that can be given a texture</i> <br>
+### Version 1.0.0.7
 
-[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/ConstructFund/construct-addon-wizard-scaffold/releases/download/sample_addon-0.0.0.0.c3addon/sample_addon-0.0.0.0.c3addon)
+[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/skymen/empty_shell_sdkv2/releases/download/skymen_Shell-1.0.0.7.c3addon/skymen_Shell-1.0.0.7.c3addon)
 <br>
-<sub> [See all releases](https://github.com/ConstructFund/construct-addon-wizard-scaffold/releases) </sub> <br>
-
-#### What's New in 0.0.0.0
-**Added:**
-Initial release.
-
-
-<sub>[View full changelog](#changelog)</sub>
+<sub> [See all releases](https://github.com/skymen/empty_shell_sdkv2/releases) </sub> <br>
 
 ---
 <b><u>Author:</u></b> skymen <br>
@@ -47,35 +40,37 @@ npm run dev
 ## Properties
 | Property Name | Description | Type |
 | --- | --- | --- |
+| Origin X | X Coordinate (0-1) | float |
+| Origin Y | Y Coordinate (0-1) | float |
+| Use Color Fill | Whether to use the color as a solid fill or not | check |
 
 
 ---
 ## Actions
 | Action | Description | Params
 | --- | --- | --- |
-| Sample Action Combo | This is a sample action | Param1             *(combo)* <br> |
-| Sample Action | This is a sample action | Param1             *(string)* <br> |
-| Sample Action Async | This is a sample action |  |
-| Sample Action | This is a sample action | Param1             *(string)* <br> |
+| Set Blend Mode | Set the blend mode | Blend Mode             *(combo)* <br> |
+| Clear | Clear the object |  |
+| Set Origin | Set the origin | Origin X             *(number)* <br>Origin Y             *(number)* <br> |
+| Set Source | Set the source object | Source             *(object)* <br>Keep Sync             *(boolean)* <br>Sync Size             *(combo)* <br>Fallback             *(combo)* <br>Sync Origin             *(boolean)* <br> |
+| Use Color Fill | Whether the addon uses the color to fill the object or not (will override sprite source use) | Use Color Fill             *(boolean)* <br> |
 
 
 ---
 ## Conditions
 | Condition | Description | Params
 | --- | --- | --- |
-| Sample Condition | This is a sample condition | Param1 *(combo)* <br> |
-| Sample Condition | This is a sample condition | Param1 *(string)* <br> |
-| Sample Trigger | This is a sample trigger |  |
-| Sample Condition | This is a sample condition |  |
+| Has source | Test if the object has a source object |  |
+| Keeps sync | Test if the object keeps sync with the source object |  |
+| Uses color fill | Test if the object uses the color as a solid fill |  |
 
 
 ---
 ## Expressions
 | Expression | Description | Return Type | Params
 | --- | --- | --- | --- |
-| Expression2 | Sample Expression | string |  | 
-| Expression | Sample Expression | number |  | 
-| SampleExpression | This is a sample expression | string |  | 
+| HotspotX | Get the hotspot x coordinate | number |  | 
+| HotspotY | Get the hotspot y coordinate | number |  | 
 
 
 ---

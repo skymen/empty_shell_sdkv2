@@ -33,9 +33,7 @@ export default function (parentClass) {
     }
 
     _SetOrigin(x, y) {
-      const wi = this._getWorldInfo();
-      wi.SetOriginX(x);
-      wi.SetOriginY(y);
+      this.setOrigin(x, y);
       this.hotspotX = x;
       this.hotspotY = y;
       wi.SetBboxChanged();
@@ -45,6 +43,7 @@ export default function (parentClass) {
       const inst = object.GetPairedInstance(this._inst);
       if (!inst) return false;
 
+      debugger;
       const sdkInst = inst.GetSdkInstance();
       if (!sdkInst) return false;
 
@@ -71,22 +70,17 @@ export default function (parentClass) {
         this._stopTicking();
       }
 
-      const wi = this._getWorldInfo();
       const sourceWi = sdkInst.GetWorldInfo();
       const sourceImageInfo = sdkInst.GetCurrentImageInfo();
 
       if (this.syncSize === 1) {
-        wi.SetSize(sourceWi.GetWidth(), sourceWi.GetHeight());
+        this.setSize(sourceWi.width, sourceWi.height);
       } else if (this.syncSize === 2) {
-        wi.SetSize(sourceImageInfo.GetWidth(), sourceImageInfo.GetHeight());
+        this.setSize(sourceImageInfo.GetWidth(), sourceImageInfo.GetHeight());
       }
 
       if (this.syncOrigin) {
         this._SetOrigin(sourceWi.GetOriginX(), sourceWi.GetOriginY());
-      }
-
-      if (this.syncSize > 0) {
-        wi.SetBboxChanged();
       }
 
       return true;
@@ -98,7 +92,7 @@ export default function (parentClass) {
         this.keepSync,
         this.syncSize,
         this.fallback,
-        this.syncOrigin
+        this.syncOrigin,
       );
     }
 
@@ -146,21 +140,16 @@ export default function (parentClass) {
 
       if (this.keepSync) {
         const sourceWi = this.source.GetWorldInfo();
-        const wi = this._getWorldInfo();
         const sourceImageInfo = this.source.GetCurrentImageInfo();
 
         if (this.syncSize === 1) {
-          wi.SetSize(sourceWi.GetWidth(), sourceWi.GetHeight());
+          this.setSize(sourceWi.GetWidth(), sourceWi.GetHeight());
         } else if (this.syncSize === 2) {
-          wi.SetSize(sourceImageInfo.GetWidth(), sourceImageInfo.GetHeight());
+          this.setSize(sourceImageInfo.GetWidth(), sourceImageInfo.GetHeight());
         }
 
         if (this.syncOrigin) {
           this._SetOrigin(sourceWi.GetOriginX(), sourceWi.GetOriginY());
-        }
-
-        if (this.syncSize > 0) {
-          wi.SetBboxChanged();
         }
       }
     }
@@ -168,15 +157,15 @@ export default function (parentClass) {
     _draw(renderer) {
       if (this.useColorFill) {
         renderer.SetColorFillMode();
-        const wi = this._getWorldInfo();
-        const quad = wi.GetBoundingQuad();
-        this.tempColor.copy(wi._color);
+        debugger;
+        const quad = this.getBoundingQuad();
+        this.tempColor.copy(this.color);
         this.tempColor.premultiply();
         renderer.SetColor(this.tempColor);
         if (this._runtime.IsPixelRoundingEnabled()) {
           const tempQuad = C3.New(C3.Quad);
-          const ox = Math.round(wi.GetX()) - wi.GetX();
-          const oy = Math.round(wi.GetY()) - wi.GetY();
+          const ox = Math.round(this.x) - this.x;
+          const oy = Math.round(this.y) - this.y;
           tempQuad.copy(quad);
           tempQuad.offset(ox, oy);
           renderer.Quad(tempQuad);
@@ -216,7 +205,7 @@ export default function (parentClass) {
         shaderProgram,
         wi.GetBlendMode(),
         wi._colorPremultiplied,
-        wi.GetZElevation()
+        wi.GetZElevation(),
       );
     }
 
@@ -232,8 +221,9 @@ export default function (parentClass) {
     }
 
     _SetBlendMode(bm) {
-      this._getWorldInfo().SetBlendMode(bm);
-      this._runtime.UpdateRender();
+      debugger;
+      this.blendMode = bm;
+      this.runtime.sdk.updateRender();
     }
 
     _release() {

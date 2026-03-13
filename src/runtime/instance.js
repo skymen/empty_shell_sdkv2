@@ -2,6 +2,16 @@ import { id, addonType } from "../../config.caw.js";
 import AddonTypeMap from "../../template/addonTypeMap.js";
 
 export default function (parentClass) {
+  let globalRuntime = null;
+  self.C3.Plugins.Sprite.Instance = class SpriteInstance extends (
+    self.C3.Plugins.Sprite.Instance
+  ) {
+    constructor(...args) {
+      super(...args);
+      globalRuntime = this._runtime;
+    }
+  };
+
   return class extends parentClass {
     constructor() {
       super();
@@ -26,7 +36,7 @@ export default function (parentClass) {
       this.syncOrigin = false;
       this.rcQuad = null;
       this.firstTick = this.useColorFill;
-      if (this.firstTick) this._startTicking();
+      if (this.firstTick) this._setTicking(true);
 
       this._SetOrigin(this.hotspotX, this.hotspotY);
     }
@@ -92,15 +102,14 @@ export default function (parentClass) {
       const texture = this.runtime.renderer.getTextureForImageInfo(
         inst.animation.getFrames()[inst.animationFrame],
       );
-      debugger;
 
       if (this.keepSync) {
         this.source = inst;
-        this._startTicking();
+        this._setTicking(true);
       } else {
         this.sourceTex = texture;
-        this.rcQuad = inst.getTexQuad();
-        this._stopTicking();
+        this.rcQuad = this._getRcQuadForInst(inst);
+        this._setTicking(false);
       }
 
       if (this.syncSize === 1) {
@@ -130,7 +139,7 @@ export default function (parentClass) {
       this.source = null;
       this.sourceTex = null;
       this.sourceObject = null;
-      this._stopTicking();
+      this._setTicking(false);
     }
 
     _getSourceTexture() {
@@ -145,7 +154,7 @@ export default function (parentClass) {
     }
 
     _Destroy() {
-      this._stopTicking();
+      this._setTicking(false);
       this._runtime.DestroyInstance(this);
     }
 
@@ -154,7 +163,7 @@ export default function (parentClass) {
         this.firstTick = false;
       }
       if (this.source === null) {
-        this._stopTicking();
+        this._setTicking(false);
         return;
       }
 
@@ -193,9 +202,9 @@ export default function (parentClass) {
 
     _draw(renderer) {
       renderer.setColorRgba(
-        this.color[0],
-        this.color[1],
-        this.color[2],
+        this.colorRgb[0],
+        this.colorRgb[1],
+        this.colorRgb[2],
         this.opacity,
       );
       if (this.useColorFill) {
@@ -213,7 +222,7 @@ export default function (parentClass) {
           quad.p4.x += ox;
           quad.p4.y += oy;
         }
-        renderer.Quad(quad);
+        renderer.quad(quad);
         return;
       }
 
@@ -223,13 +232,19 @@ export default function (parentClass) {
 
       renderer.setTextureFillMode();
       renderer.setTexture(texture);
-      renderer.Quad4(this.getBoundingQuad(), this._getRcQuad());
+      renderer.quad4(this.getBoundingQuad(), this._getRcQuad());
+    }
+
+    _getRcQuadForInst(inst) {
+      //TODO: This uses a hack
+      const sdkInst = globalRuntime.GetInstanceByUID(inst.uid)._sdkInst;
+      if (!sdkInst) return null;
+      return sdkInst.GetTexQuad().toDOMQuad();
     }
 
     _getRcQuad() {
-      //TODO
       const rcQuad = this.source
-        ? this.source.GetCurrentImageInfo().GetTexQuad()
+        ? this._getRcQuadForInst(this.source)
         : this.rcQuad;
       if (this.runtime.isPixelRoundingEnabled) {
         const ox = Math.round(this.x) - this.x;

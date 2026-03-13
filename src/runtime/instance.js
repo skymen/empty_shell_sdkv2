@@ -24,34 +24,62 @@ export default function (parentClass) {
       this.syncSize = 0;
       this.fallback = 3;
       this.syncOrigin = false;
-      this.rcQuad = C3.New(C3.Quad);
+      this.rcQuad = null;
       this.firstTick = this.useColorFill;
-      this.tempColor = C3.New(C3.Color);
       if (this.firstTick) this._startTicking();
 
       this._SetOrigin(this.hotspotX, this.hotspotY);
+    }
+
+    _trigger(method) {
+      this.dispatch(method);
+      super._trigger(self.C3[AddonTypeMap[addonType]][id].Cnds[method]);
+    }
+
+    on(tag, callback, options) {
+      if (!this.events[tag]) {
+        this.events[tag] = [];
+      }
+      this.events[tag].push({ callback, options });
+    }
+
+    off(tag, callback) {
+      if (this.events[tag]) {
+        this.events[tag] = this.events[tag].filter(
+          (event) => event.callback !== callback,
+        );
+      }
+    }
+
+    dispatch(tag) {
+      if (this.events[tag]) {
+        this.events[tag].forEach((event) => {
+          if (event.options && event.options.params) {
+            const fn = self.C3[AddonTypeMap[addonType]][id].Cnds[tag];
+            if (fn && !fn.call(this, ...event.options.params)) {
+              return;
+            }
+          }
+          event.callback();
+          if (event.options && event.options.once) {
+            this.off(tag, event.callback);
+          }
+        });
+      }
     }
 
     _SetOrigin(x, y) {
       this.setOrigin(x, y);
       this.hotspotX = x;
       this.hotspotY = y;
-      wi.SetBboxChanged();
     }
 
     _SetSource(object, keepSync, syncSize, fallback, syncOrigin) {
-      const inst = object.GetPairedInstance(this._inst);
+      const inst = object.getPairedInstance(this);
       if (!inst) return false;
 
-      debugger;
-      const sdkInst = inst.GetSdkInstance();
-      if (!sdkInst) return false;
-
-      if (
-        !C3.Plugins.Sprite ||
-        !(sdkInst instanceof C3.Plugins.Sprite.Instance)
-      )
-        return;
+      if (!self.ISpriteInstance || !(inst instanceof self.ISpriteInstance))
+        return false;
 
       this.source = null;
       this.sourceTex = null;
@@ -61,26 +89,28 @@ export default function (parentClass) {
       this.fallback = fallback;
       this.syncOrigin = syncOrigin;
 
+      const texture = this.runtime.renderer.getTextureForImageInfo(
+        inst.animation.getFrames()[inst.animationFrame],
+      );
+      debugger;
+
       if (this.keepSync) {
-        this.source = sdkInst;
+        this.source = inst;
         this._startTicking();
       } else {
-        this.sourceTex = sdkInst.GetTexture();
-        this.rcQuad.copy(sdkInst.GetTexQuad());
+        this.sourceTex = texture;
+        this.rcQuad = inst.getTexQuad();
         this._stopTicking();
       }
 
-      const sourceWi = sdkInst.GetWorldInfo();
-      const sourceImageInfo = sdkInst.GetCurrentImageInfo();
-
       if (this.syncSize === 1) {
-        this.setSize(sourceWi.width, sourceWi.height);
+        this.setSize(inst.width, inst.height);
       } else if (this.syncSize === 2) {
-        this.setSize(sourceImageInfo.GetWidth(), sourceImageInfo.GetHeight());
+        this.setSize(inst.imageWidth, inst.imageHeight);
       }
 
       if (this.syncOrigin) {
-        this._SetOrigin(sourceWi.GetOriginX(), sourceWi.GetOriginY());
+        this._SetOrigin(inst.originX, inst.originY);
       }
 
       return true;
@@ -103,6 +133,17 @@ export default function (parentClass) {
       this._stopTicking();
     }
 
+    _getSourceTexture() {
+      if (this.source) {
+        return this.runtime.renderer.getTextureForImageInfo(
+          this.source.animation.getFrames()[this.source.animationFrame],
+        );
+      } else if (this.sourceTex) {
+        return this.sourceTex;
+      }
+      return null;
+    }
+
     _Destroy() {
       this._stopTicking();
       this._runtime.DestroyInstance(this);
@@ -111,7 +152,6 @@ export default function (parentClass) {
     _tick() {
       if (this.firstTick) {
         this.firstTick = false;
-        this._UpdateRendererStateGroup();
       }
       if (this.source === null) {
         this._stopTicking();
@@ -139,80 +179,76 @@ export default function (parentClass) {
       }
 
       if (this.keepSync) {
-        const sourceWi = this.source.GetWorldInfo();
-        const sourceImageInfo = this.source.GetCurrentImageInfo();
-
         if (this.syncSize === 1) {
-          this.setSize(sourceWi.GetWidth(), sourceWi.GetHeight());
+          this.setSize(this.source.width, this.source.height);
         } else if (this.syncSize === 2) {
-          this.setSize(sourceImageInfo.GetWidth(), sourceImageInfo.GetHeight());
+          this.setSize(this.source.imageWidth, this.source.imageHeight);
         }
 
         if (this.syncOrigin) {
-          this._SetOrigin(sourceWi.GetOriginX(), sourceWi.GetOriginY());
+          this._SetOrigin(this.source.originX, this.source.originY);
         }
       }
     }
 
     _draw(renderer) {
+      renderer.setColorRgba(
+        this.color[0],
+        this.color[1],
+        this.color[2],
+        this.opacity,
+      );
       if (this.useColorFill) {
-        renderer.SetColorFillMode();
-        debugger;
+        renderer.setColorFillMode();
         const quad = this.getBoundingQuad();
-        this.tempColor.copy(this.color);
-        this.tempColor.premultiply();
-        renderer.SetColor(this.tempColor);
-        if (this._runtime.IsPixelRoundingEnabled()) {
-          const tempQuad = C3.New(C3.Quad);
+        if (this.runtime.isPixelRoundingEnabled) {
           const ox = Math.round(this.x) - this.x;
           const oy = Math.round(this.y) - this.y;
-          tempQuad.copy(quad);
-          tempQuad.offset(ox, oy);
-          renderer.Quad(tempQuad);
-        } else {
-          renderer.Quad(quad);
+          quad.p1.x += ox;
+          quad.p1.y += oy;
+          quad.p2.x += ox;
+          quad.p2.y += oy;
+          quad.p3.x += ox;
+          quad.p3.y += oy;
+          quad.p4.x += ox;
+          quad.p4.y += oy;
         }
+        renderer.Quad(quad);
         return;
       }
 
-      const texture =
-        this.sourceTex || (this.source && this.source.GetTexture());
+      const texture = this._getSourceTexture();
 
       if (!texture) return;
 
-      const wi = this._getWorldInfo();
-      let quad = wi.GetBoundingQuad();
+      renderer.setTextureFillMode();
+      renderer.setTexture(texture);
+      renderer.Quad4(this.getBoundingQuad(), this._getRcQuad());
+    }
+
+    _getRcQuad() {
+      //TODO
       const rcQuad = this.source
         ? this.source.GetCurrentImageInfo().GetTexQuad()
         : this.rcQuad;
-
-      renderer.SetTexture(texture);
-
-      if (this._runtime.IsPixelRoundingEnabled())
-        quad = wi.PixelRoundQuad(quad);
-      renderer.Quad4(quad, rcQuad);
-    }
-
-    _UpdateRendererStateGroup() {
-      const renderer = this._runtime.GetRenderer();
-      const wi = this._getWorldInfo();
-      if (wi._stateGroup) renderer.ReleaseStateGroup(wi._stateGroup);
-      let shaderProgram;
-      if (this.useColorFill) shaderProgram = renderer._spColorFill || "<fill>";
-      else
-        shaderProgram = renderer.GetTextureFillShaderProgram() || "<default>";
-      wi._stateGroup = renderer.AcquireStateGroup(
-        shaderProgram,
-        wi.GetBlendMode(),
-        wi._colorPremultiplied,
-        wi.GetZElevation(),
-      );
+      if (this.runtime.isPixelRoundingEnabled) {
+        const ox = Math.round(this.x) - this.x;
+        const oy = Math.round(this.y) - this.y;
+        rcQuad.p1.x += ox;
+        rcQuad.p1.y += oy;
+        rcQuad.p2.x += ox;
+        rcQuad.p2.y += oy;
+        rcQuad.p3.x += ox;
+        rcQuad.p3.y += oy;
+        rcQuad.p4.x += ox;
+        rcQuad.p4.y += oy;
+      }
+      return rcQuad;
     }
 
     _SetUseColor(fill) {
       this.useColorFill = fill;
       if (fill && this.source) this.source = null;
-      this._UpdateRendererStateGroup();
     }
 
     _Clear() {

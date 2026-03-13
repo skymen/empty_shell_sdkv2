@@ -3,14 +3,16 @@ import AddonTypeMap from "../../template/addonTypeMap.js";
 
 export default function (parentClass) {
   let globalRuntime = null;
-  self.C3.Plugins.Sprite.Instance = class SpriteInstance extends (
-    self.C3.Plugins.Sprite.Instance
-  ) {
-    constructor(...args) {
-      super(...args);
-      globalRuntime = this._runtime;
-    }
-  };
+  if (self.C3.Plugins.Sprite.Instance) {
+    self.C3.Plugins.Sprite.Instance = class SpriteInstance extends (
+      self.C3.Plugins.Sprite.Instance
+    ) {
+      constructor(...args) {
+        super(...args);
+        globalRuntime = this._runtime;
+      }
+    };
+  }
 
   return class extends parentClass {
     constructor() {

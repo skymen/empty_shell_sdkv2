@@ -3,5 +3,10 @@
     "added": "Initial release.",
     "changed": "",
     "fixed": ""
+  },
+  "2.0.0.0": {
+    "added": "Ported to SDK V2",
+    "changed": "",
+    "fixed": ""
   }
 }

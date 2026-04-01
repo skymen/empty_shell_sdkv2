@@ -3,7 +3,7 @@ import AddonTypeMap from "../../template/addonTypeMap.js";
 
 export default function (parentClass) {
   let globalRuntime = null;
-  if (self.C3.Plugins.Sprite.Instance) {
+  if (typeof self !== "undefined" && self.C3?.Plugins?.Sprite?.Instance) {
     self.C3.Plugins.Sprite.Instance = class SpriteInstance extends (
       self.C3.Plugins.Sprite.Instance
     ) {

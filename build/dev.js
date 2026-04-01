@@ -58,6 +58,7 @@ export default async function dev() {
       );
     });
     childProcess.stdout.pipe(process.stdout);
+    childProcess.stderr.pipe(process.stderr);
   };
 
   // Run initial build

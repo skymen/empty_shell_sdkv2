@@ -33,21 +33,22 @@ function getFileExtension(filename) {
 function formatChangelogEntry(versionData) {
   const changes = [];
 
-  if (versionData.added) {
-    changes.push(`**Added:**`);
-    changes.push(versionData.added);
-    changes.push("");
-  }
+  const categories = [
+    { key: "added", label: "Added" },
+    { key: "changed", label: "Changed" },
+    { key: "fixed", label: "Fixed" },
+  ];
 
-  if (versionData.changed) {
-    changes.push(`**Changed:**`);
-    changes.push(versionData.changed);
-    changes.push("");
-  }
-
-  if (versionData.fixed) {
-    changes.push(`**Fixed:**`);
-    changes.push(versionData.fixed);
+  for (const { key, label } of categories) {
+    if (versionData[key]) {
+      const items = versionData[key]
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      for (const item of items) {
+        changes.push(`- **${label}:** ${item}`);
+      }
+    }
   }
 
   return changes;
@@ -372,13 +373,11 @@ export default async function generateDocumentation() {
 
     allChangelogs.versions.forEach((version) => {
       const versionData = allChangelogs.changelog[version];
-      readme.push(`### Version ${version}`);
-      readme.push(``);
+      readme.push(`**${version}**`);
 
       const formattedChanges = formatChangelogEntry(versionData);
       formattedChanges.forEach((line) => readme.push(line));
 
-      readme.push(`---`);
       readme.push(``);
     });
   }

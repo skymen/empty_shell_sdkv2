@@ -13,5 +13,10 @@
     "added": "",
     "changed": "",
     "fixed": "Added an if statement to prevent hack if it would break"
+  },
+  "2.0.0.2": {
+    "added": "",
+    "changed": "",
+    "fixed": "Should no longer crash on older versions of C3"
   }
 }

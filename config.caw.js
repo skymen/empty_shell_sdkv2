@@ -12,8 +12,8 @@ export const name = "Empty Shell";
 export const version = _version;
 export const minConstructVersion = undefined;
 export const author = "skymen";
-export const website = "https://www.construct.net";
-export const documentation = "https://www.construct.net";
+export const website = "https://www.construct.net/en/make-games/addons/933/empty-shell";
+export const documentation = "https://www.construct.net/en/make-games/addons/933/empty-shell/documentation";
 export const description = "An empty shell addon that can be given a texture";
 export const category = ADDON_CATEGORY.GENERAL;
 

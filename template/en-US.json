@@ -6,7 +6,7 @@
       "skymen_shell": {
         "name": "Empty Shell",
         "description": "An empty shell addon that can be given a texture",
-        "help-url": "https://www.construct.net",
+        "help-url": "https://www.construct.net/en/make-games/addons/933/empty-shell/documentation",
         "aceCategories": {
           "appearance": "Appearance",
           "general": "General"
